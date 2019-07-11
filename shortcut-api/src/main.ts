@@ -1,5 +1,6 @@
 import knex from 'knex';
 import express from 'express';
+import cors from 'cors';
 
 const port = 3001;
 
@@ -10,6 +11,7 @@ var pg = knex({
 });
 
 const app = express();
+app.use(cors());
 const router = express.Router();
 
 router.get('/apartments', (req, res) => {
