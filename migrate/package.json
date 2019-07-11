@@ -1,0 +1,16 @@
+{
+  "name": "shortcut-migrate",
+  "version": "0.0.1",
+  "description": "Shortcut database migrations",
+  "scripts": {
+    "tsc": "tsc",
+    "migrate": "node-pg-migrate"
+  },
+  "author": "Toni Sallanmaa",
+  "license": "MIT",
+  "devDependencies": {},
+  "dependencies": {
+    "node-pg-migrate": "^3.21.1",
+    "pg": "^7.11.0"
+  }
+}

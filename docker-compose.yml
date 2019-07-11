@@ -11,6 +11,7 @@ services:
     container_name: processor
     depends_on:
       - redis
+      - db
 
   kue:
     build: ./shortcut-searcher
@@ -35,6 +36,17 @@ services:
       - "54320:5432"
     volumes:
       - dbdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=shortcut
+
+  migrate:
+    build: ./migrate
+    container_name: migrate
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://postgres@db:5432/shortcut
+      
 volumes:
   dbdata:
   redisdata:
