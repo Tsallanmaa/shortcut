@@ -1,0 +1,40 @@
+version: '3'
+services:
+  searcher:
+    build: ./shortcut-searcher
+    container_name: searcher
+    depends_on:
+      - redis
+
+  processor:
+    build: ./shortcut-processor
+    container_name: processor
+    depends_on:
+      - redis
+
+  kue:
+    build: ./shortcut-searcher
+    ports:
+      - "3050:3050"
+    depends_on:
+      - redis
+    command: ash -c "./node_modules/kue/bin/kue-dashboard -p 3050 -r redis://redis"
+
+  redis:
+    container_name: redis
+    image: redis:alpine
+    hostname: redis
+    volumes:
+      - redisdata:/data
+    entrypoint: redis-server --appendonly yes
+
+  db:
+    image: postgres:12
+    container_name: postgres
+    ports:
+      - "54320:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+volumes:
+  dbdata:
+  redisdata:
