@@ -39,6 +39,7 @@ axios.get('https://asunnot.oikotie.fi/user/get?format=json&rand=1135', config)
     axios.get('https://asunnot.oikotie.fi/api/cards?buildingType%5B%5D=4&buildingType%5B%5D=8&buildingType%5B%5D=32&buildingType%5B%5D=128&buildingType%5B%5D=64&cardType=100&constructionYear%5Bmin%5D=1980&habitationType%5B%5D=1&limit=24&locations=%5B%5B14800,5,%2201640,+Vantaa%22%5D%5D&offset=0&price%5Bmax%5D=450000&price%5Bmin%5D=200000&roomCount%5B%5D=5&roomCount%5B%5D=6&roomCount%5B%5D=7&sortBy=published_sort_desc', cardConfig) // tslint:disable-line
     .then(({ data }) => {
       extractListingCards(data);
+      process.exitCode = 0;
     });
 });
 

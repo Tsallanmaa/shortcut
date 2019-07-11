@@ -46,6 +46,12 @@ services:
       - db
     environment:
       - DATABASE_URL=postgres://postgres@db:5432/shortcut
+
+  front:
+    build: ./shortcut-front
+    container_name: front
+    ports:
+      - "8080:80"
       
 volumes:
   dbdata:
