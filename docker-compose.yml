@@ -52,6 +52,14 @@ services:
     container_name: front
     ports:
       - "8080:80"
+
+  api:
+    build: ./shortcut-api
+    container_name: api
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
       
 volumes:
   dbdata:

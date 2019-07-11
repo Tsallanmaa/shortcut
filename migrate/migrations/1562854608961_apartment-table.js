@@ -10,17 +10,17 @@ exports.up = (pgm) => {
             type: "varchar(1000)", 
             notNull: true 
         },
-        createdAt: {
+        created_at: {
             type: "timestamp",
             notNull: true,
             default: pgm.func("current_timestamp")
         },
-        lastSeenAt: {
+        last_seen_at: {
             type: "timestamp",
             notNull: true,
             default: pgm.func("current_timestamp")
         },
-        searchResult: {
+        search_result: {
             type: "jsonb"
         },
         json: {

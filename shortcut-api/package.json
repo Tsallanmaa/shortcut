@@ -1,0 +1,20 @@
+{
+  "name": "shortcut-processor",
+  "version": "0.0.1",
+  "description": "Shortcut processor",
+  "scripts": {
+    "tsc": "tsc",
+    "dev": "node ./build/main.js"
+  },
+  "author": "Toni Sallanmaa",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/express": "^4.17.0",
+    "typescript": "^3.5.1"
+  },
+  "dependencies": {
+    "express": "^4.17.1",
+    "knex": "^0.19.0",
+    "pg": "^7.11.0"
+  }
+}
