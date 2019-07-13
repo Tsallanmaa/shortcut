@@ -1,6 +1,7 @@
 import * as React from "react";
 import { Table, Alert } from 'reactstrap';
 import { RouteComponentProps } from "react-router-dom";
+import { ApartmentPriceChart } from "./ApartmentPriceChart";
 
 export interface ApartmentState { 
     data: any,
@@ -26,11 +27,10 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
     }
 
     componentDidMount() {
-        fetch('http://localhost:3001/api/apartments')
+        fetch(`http://localhost:3001/api/apartments/${this.props.match.params.id}`)
             .then((response) => response.json())
-            .then((res: Array<any>) => {
-                let result = res.filter((apt => apt.id.toString() === this.props.match.params.id));
-                this.setState({ data: result.length > 0 ? result[0].json : undefined, isLoading: false })
+            .then((res: any) => {
+                this.setState({ data: res.json, isLoading: false })
             }); 
     }
 
@@ -79,9 +79,12 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
         });
 
         return (
-            <Table>
-                    {items}
-            </Table>
+            <div>
+                <ApartmentPriceChart id={this.props.match.params.id} />
+                <Table>
+                        {items}
+                </Table>
+            </div>
         );
     }
 }

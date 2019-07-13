@@ -10,6 +10,7 @@
     "@types/react-dom": "^16.8.4",
     "@types/react-router-dom": "^4.3.4",
     "@types/reactstrap": "^8.0.1",
+    "@types/victory": "^31.0.20",
     "bootstrap": "^4.3.1",
     "css-loader": "^3.0.0",
     "jquery": "1.9.1",
@@ -22,6 +23,7 @@
     "style-loader": "^0.23.1",
     "ts-loader": "^6.0.4",
     "typescript": "^3.5.3",
+    "victory": "^32.3.3",
     "webpack": "^4.35.3",
     "webpack-cli": "^3.3.5"
   },

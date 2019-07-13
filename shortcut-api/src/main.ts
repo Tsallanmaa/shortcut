@@ -14,13 +14,21 @@ const app = express();
 app.use(cors());
 const router = express.Router();
 
-router.get('/apartments', (req, res) => {
-    return pg('apartments').select(pg.raw("id, name, last_seen_at, json, search_result"))
-        .then(function(rows) {
-       console.log(`Found ${rows.length} apartments!`);
-       res.json(rows);
-    });
+router.get('/apartments', async (req, res) => {
+    const rows = await pg('apartments').select(pg.raw("id, name, last_seen_at, json, search_result"));
+    res.json(rows);
 });
+
+router.get('/apartments/:id', async (req, res) => {
+    const apt = await pg('apartments').select(pg.raw("id, name, last_seen_at, json, search_result")).where({id: req.params.id}).first();
+    res.json(apt);
+});
+
+router.get('/apartments/:id/prices', async (req, res) => {
+    const rows = await pg('apartment_price').select('price', 'price_date').where({ apartment_id: req.params.id }).orderBy('price_date', 'asc');
+    res.json(rows);
+});
+
 
 app.use('/api', router);
 

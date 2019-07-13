@@ -11,7 +11,7 @@ exports.up = (pgm) => {
             notNull: true
         },
         price: { 
-            type: "money", 
+            type: "numeric", 
             notNull: true 
         },
         price_date: {
@@ -29,7 +29,7 @@ exports.up = (pgm) => {
           }
       }});
 
-      pgm.sql("INSERT INTO apartment_price(apartment_id, price_date, price) SELECT id, created_at, regexp_replace(search_result->>'price', '[^0-9,\.]+', '', 'g')::money FROM apartments");
+      pgm.sql("INSERT INTO apartment_price(apartment_id, price_date, price) SELECT id, created_at, regexp_replace(search_result->>'price', '[^0-9,\.]+', '', 'g')::numeric FROM apartments");
 };
 
 exports.down = (pgm) => {
