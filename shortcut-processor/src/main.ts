@@ -82,7 +82,7 @@ axios.get('https://asunnot.oikotie.fi/user/get?format=json&rand=1135', config)
         });
 
         pg('apartments')
-          .insert({id: job.data.id, name: job.data.title, searchResult: JSON.stringify(job.data.json), json: JSON.stringify(result) })
+          .insert({id: job.data.id, name: job.data.title, search_result: JSON.stringify(job.data.json), json: JSON.stringify(result) })
           .then(() => {
             console.log(`Inserted data for ${job.data.title}`)
           })

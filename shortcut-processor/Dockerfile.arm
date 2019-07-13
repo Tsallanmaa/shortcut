@@ -1,0 +1,17 @@
+# Dockerfile
+FROM arm32v7/node:12
+WORKDIR /usr/src/processor
+COPY . .
+RUN yarn install && yarn run tsc
+
+FROM arm32v7/node:12
+WORKDIR /app
+COPY package*.json yarn.lock ./
+RUN yarn install --prod
+
+# Only copy over the node pieces we need from the above images
+FROM arm32v7/node:12-slim
+WORKDIR /app
+COPY --from=0 /usr/src/processor/build .
+COPY --from=1 /app/node_modules ./node_modules
+CMD ["node", "main.js"]

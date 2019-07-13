@@ -1,0 +1,78 @@
+version: '3'
+services:
+  searcher:
+    build: 
+      context: ./shortcut-searcher
+      dockerfile: Dockerfile.arm
+    container_name: searcher
+    depends_on:
+      - redis
+
+  processor:
+    build:
+      context: ./shortcut-processor
+      dockerfile: Dockerfile.arm
+    container_name: processor
+    depends_on:
+      - redis
+      - db
+
+  kue:
+    build:
+      context: ./shortcut-searcher
+      dockerfile: Dockerfile.arm
+    ports:
+      - "3050:3050"
+    depends_on:
+      - redis
+    command: ash -c "./node_modules/kue/bin/kue-dashboard -p 3050 -r redis://redis"
+
+  redis:
+    container_name: redis
+    image: redis:alpine
+    hostname: redis
+    volumes:
+      - redisdata:/data
+    entrypoint: redis-server --appendonly yes
+
+  db:
+    image: postgres:12
+    container_name: postgres
+    ports:
+      - "54320:5432"
+    volumes:
+      - dbdata:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=shortcut
+
+  migrate:
+    build:
+      context: ./migrate
+      dockerfile: Dockerfile.arm
+    container_name: migrate
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://postgres@db:5432/shortcut
+
+  front:
+    build:
+      context: ./shortcut-front
+      dockerfile: Dockerfile.arm
+    container_name: front
+    ports:
+      - "8080:80"
+
+  api:
+    build:
+      context: ./shortcut-api
+      dockerfile: Dockerfile.arm
+    container_name: api
+    ports:
+      - "3001:3001"
+    depends_on:
+      - db
+      
+volumes:
+  dbdata:
+  redisdata:
