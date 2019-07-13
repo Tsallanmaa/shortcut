@@ -88,7 +88,7 @@ axios.get('https://asunnot.oikotie.fi/user/get?format=json&rand=1135', config)
 
           pg('apartments').where({ id: job.data.id }).select().first()
             .then((rows) => {
-              if (rows.length === 0) {
+              if (!rows || rows.length === 0) {
                 pg('apartments')
                   .insert({ id: job.data.id, name: job.data.title, search_result: JSON.stringify(job.data.json), json: JSON.stringify(result) })
                   .then(() => {
@@ -108,15 +108,16 @@ axios.get('https://asunnot.oikotie.fi/user/get?format=json&rand=1135', config)
                     console.log(`Knex error: ${error}`);
                   });
               }
-            });
-
-          pg('apartment_price')
-            .insert({ apartment_id: job.data.id, price: (job.data.json.price ? job.data.json.price.replace(/[^0-9.,]/g, "") : 0) })
-            .then(() => {
-              console.log(`Inserted price data for ${job.data.title} (${job.data.json.price.replace(/[^0-9.,]/g, "")})`);
             })
-            .catch((error) => {
-              console.log(`Knex error: ${error}`);
+            .then(() => {
+              pg('apartment_price')
+              .insert({ apartment_id: job.data.id, price: (job.data.json.price ? job.data.json.price.replace(/[^0-9.,]/g, "") : 0) })
+              .then(() => {
+                console.log(`Inserted price data for ${job.data.title} (${job.data.json.price.replace(/[^0-9.,]/g, "")})`);
+              })
+              .catch((error) => {
+                console.log(`Knex error: ${error}`);
+              });
             });
 
           done();
