@@ -2,7 +2,6 @@ import * as React from "react";
 import { VictoryChart, VictoryLine, VictoryTheme } from "victory";
 export interface ApartmentPriceChartProps {
     id: string
-    style: React.CSSProperties
 }
 
 export interface ApartmentPriceChartState {
@@ -36,13 +35,8 @@ export class ApartmentPriceChart extends React.Component<ApartmentPriceChartProp
     render() {
         const {data} = this.state;
 
-        const divStyle: React.CSSProperties = {
-            float: "right",
-            width: this.props.style.width
-          };
-
         return (
-            <div style={divStyle}>
+            <div style={{float: "right"} as React.CSSProperties}>
                 <VictoryChart theme={VictoryTheme.material} width={450}>
                     <VictoryLine
                         style={{

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Table, Alert } from 'reactstrap';
+import { Table, Alert, Container, Row, Col, CardBody, Card, CardText } from 'reactstrap';
 import { RouteComponentProps } from "react-router-dom";
 import { ApartmentPriceChart } from "./ApartmentPriceChart";
 
@@ -52,57 +52,61 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
             }
             if (key === "links") {
                 items.push(
-                    <tbody key={key}>
-                        <tr>
-                            <td><b>{ key }</b></td>
-                            <td></td>
-                        </tr>
-                    </tbody>
+                    <tr key={key}>
+                        <td><b>{ key }</b></td>
+                        <td></td>
+                    </tr>
                     );
                 let count = 0;
                 this.state.data[key].forEach((link: any) => {
                     items.push(
-                        <tbody key={`link${count}`}>
-                            <tr>
-                                <td></td>
-                                <td><a href={link.target}>{link.title}</a></td>
-                            </tr>
-                        </tbody>
+                        <tr key={`link${count}`}>
+                            <td></td>
+                            <td><a href={link.target}>{link.title}</a></td>
+                        </tr>
                         );
                     count++;
                 });
             } else {
                 items.push(
-                <tbody key={key}>
-                    <tr>
+                    <tr key={key}>
                         <td>{ key }</td>
                         <td>{ this.state.data[key] }</td>
                     </tr>
-                </tbody>
                 );
             }
         });
 
-        const chartStyle: React.CSSProperties = {
-            width: "40%"
-        };
-
-        const descStyle: React.CSSProperties = {
-            width: "60%",
-            float: "left"
-        };
-
         return (
-            <div>
-                <div style={descStyle}>
-                    <h1>{this.state.name}</h1>
-                    <p>{this.state.data['description'] ? this.state.data['description'] : ''}</p>
-                </div>
-                <ApartmentPriceChart style={chartStyle} id={this.props.match.params.id} />
-                <Table>
-                        {items}
-                </Table>
-            </div>
+            <Container>
+                <Row>
+                    <Col>
+                        <h1 style={{marginTop: "20px", marginBottom: "20px"}}>{this.state.name}</h1>
+                    </Col>
+                </Row>
+                <Row style={{marginBottom: "20px"}}>
+                    <Col xs="8">   
+                        <Card>
+                            <CardBody>
+                                <CardText>{this.state.data['description'] ? this.state.data['description'] : ''}</CardText>
+                            </CardBody>       
+                        </Card>
+                    </Col>
+                    <Col xs="4">
+                        <ApartmentPriceChart id={this.props.match.params.id} />
+                    </Col> 
+                </Row>
+                <Row>
+                    <Col>
+                        <Table striped>
+                            <tbody>
+                                {items}
+                            </tbody>
+                        </Table>
+                    </Col>
+                </Row>
+
+            </Container>
         );
     }
 }
