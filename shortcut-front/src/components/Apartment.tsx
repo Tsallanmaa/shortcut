@@ -5,7 +5,8 @@ import { ApartmentPriceChart } from "./ApartmentPriceChart";
 
 export interface ApartmentState { 
     data: any,
-    isLoading: boolean
+    isLoading: boolean,
+    name: string
 }
 
 export interface ApartmentMatchParams {
@@ -21,6 +22,7 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
         super(props, state);
 
         this.state = {
+            name: "",
             data: {},
             isLoading: true
         }
@@ -30,7 +32,7 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
         fetch(`http://localhost:3001/api/apartments/${this.props.match.params.id}`)
             .then((response) => response.json())
             .then((res: any) => {
-                this.setState({ data: res.json, isLoading: false })
+                this.setState({ name: res.name, data: res.json, isLoading: false })
             }); 
     }
 
@@ -45,6 +47,9 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
 
         let items: Array<any> = [];
         Object.keys(this.state.data).forEach((key) => {
+            if (key === "description") {
+                return;
+            }
             if (key === "links") {
                 items.push(
                     <tbody key={key}>
@@ -78,9 +83,22 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
             }
         });
 
+        const chartStyle: React.CSSProperties = {
+            width: "40%"
+        };
+
+        const descStyle: React.CSSProperties = {
+            width: "60%",
+            float: "left"
+        };
+
         return (
             <div>
-                <ApartmentPriceChart id={this.props.match.params.id} />
+                <div style={descStyle}>
+                    <h1>{this.state.name}</h1>
+                    <p>{this.state.data['description'] ? this.state.data['description'] : ''}</p>
+                </div>
+                <ApartmentPriceChart style={chartStyle} id={this.props.match.params.id} />
                 <Table>
                         {items}
                 </Table>

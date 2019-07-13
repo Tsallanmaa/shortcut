@@ -49,6 +49,12 @@ axios.get('https://asunnot.oikotie.fi/user/get?format=json&rand=1135', config)
       axios.get(job.data.url, cardConfig)
         .then(({ data }) => {
           const $ = cheerio.load(data);
+
+          const mainTextElements = $('.paragraph.paragraph--margin-xlarge');
+          if (mainTextElements.length > 0) {
+            result['description'] = $(mainTextElements[0]).text();
+          }
+
           const rows = $('.info-table__row');
           rows.each((i, elem) => {
             const keyElement = $(elem).find($('.info-table__title'));
