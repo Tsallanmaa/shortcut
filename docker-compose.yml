@@ -13,14 +13,6 @@ services:
       - redis
       - db
 
-  kue:
-    build: ./shortcut-searcher
-    ports:
-      - "3050:3050"
-    depends_on:
-      - redis
-    command: ash -c "./node_modules/kue/bin/kue-dashboard -p 3050 -r redis://redis"
-
   redis:
     container_name: redis
     image: redis:alpine

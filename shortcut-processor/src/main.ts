@@ -1,5 +1,5 @@
 import axios from 'axios';
-import kue from 'kue';
+import bull from 'bull';
 import cheerio from 'cheerio';
 import knex from 'knex';
 
@@ -7,12 +7,12 @@ const config = {
     headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'}
   };
 
-const q = kue.createQueue({
-    prefix: 'q',
-    redis: {
-      host: 'redis'
-    }
-  });
+const q = new bull('search results', 'redis://redis',
+  { limiter: {
+    max: 10,
+    duration: 5000
+  }
+});
 
 var pg = knex({
   client: 'pg',
@@ -39,7 +39,7 @@ axios.get('https://asunnot.oikotie.fi/user/get?format=json&rand=1135', config)
     console.log(`[AUTH] Token: ${data.user.token}`);
     console.log(`[AUTH] Time: ${data.user.time}`);
 }).then(() => {
-    q.process('cards', (job: any, done: any) => {
+    q.process((job: any, done: any) => {
       console.log(`[JOB] Processing job ${job.data.title}...`);   
       let result: any = {
         id: job.data.id
