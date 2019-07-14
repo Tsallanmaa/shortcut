@@ -39,7 +39,6 @@ function authenticate(): Promise<Auth>
   });
 }
 
-
 q.process(async (job: any, done: any) => {
 
   let auth = await authPromise;

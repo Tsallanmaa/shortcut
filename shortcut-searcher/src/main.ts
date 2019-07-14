@@ -13,7 +13,14 @@ const config = {
     headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'}
   };
 
-const q = new bull('search results', 'redis://redis',
+const searchQueue = new bull('search results', 'redis://redis',
+  { limiter: {
+    max: 1,
+    duration: 1000
+  }
+});
+
+const transitQueue = new bull('transit search', 'redis://redis',
   { limiter: {
     max: 1,
     duration: 1000
@@ -69,14 +76,23 @@ function createJobsFromCards(json: cards.Root): Promise<any[]> {
   let promises: Array<Promise<any>> = [];
 
   json.cards.forEach((card) => {
-    promises.push(q.add({
+    promises.push(searchQueue.add({
         title: `${card.buildingData.city} / ${card.buildingData.district} / ${card.buildingData.address}`,
         url: card.url,
         id: card.id,
         json: card
     }).then((job) => {
-        console.log(`[SEARCHER] Job created: ${job.id} for ${card.buildingData.address}`);
+        console.log(`[SEARCHER] Search result processor job created: ${job.id} for ${card.buildingData.address}`);
     }));
+
+    promises.push(transitQueue.add({
+      id: card.id,
+      title: `${card.buildingData.city} / ${card.buildingData.district} / ${card.buildingData.address}`,
+      json: card
+    }).then((job) => {
+        console.log(`[SEARCHER] Transit processor job created: ${job.id} for ${card.buildingData.address}`);
+    }));
+
   });
 
   return Promise.all(promises);

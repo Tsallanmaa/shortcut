@@ -17,6 +17,15 @@ services:
       - redis
       - db
 
+  transit:
+    build:
+      context: ./shortcut-transit
+      dockerfile: Dockerfile.arm
+    container_name: transit
+    depends_on:
+      - redis
+      - db
+
   redis:
     container_name: redis
     image: redis:alpine

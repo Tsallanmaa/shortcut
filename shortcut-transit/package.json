@@ -1,0 +1,23 @@
+{
+  "name": "shortcut-transit",
+  "version": "0.0.1",
+  "description": "Shortcut transit route processor",
+  "scripts": {
+    "tsc": "tsc",
+    "dev": "node ./build/main.js"
+  },
+  "author": "Toni Sallanmaa",
+  "license": "MIT",
+  "devDependencies": {
+    "@types/bull": "^3.10.0",
+    "@types/moment": "^2.13.0",
+    "typescript": "^3.5.1"
+  },
+  "dependencies": {
+    "axios": "^0.19.0",
+    "bull": "^3.10.0",
+    "knex": "^0.19.0",
+    "moment": "^2.24.0",
+    "pg": "^7.11.0"
+  }
+}
