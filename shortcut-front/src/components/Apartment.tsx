@@ -2,6 +2,7 @@ import * as React from "react";
 import { Table, Alert, Container, Row, Col, CardBody, Card, CardText, Button } from 'reactstrap';
 import { RouteComponentProps } from "react-router-dom";
 import { ApartmentPriceChart } from "./ApartmentPriceChart";
+import { ApartmentTransitInfo } from "./ApartmentTransitInfo";
 
 export interface ApartmentState { 
     data: any,
@@ -99,9 +100,16 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
                         <ApartmentPriceChart id={this.props.match.params.id} />
                     </Col> 
                 </Row>
+                <Row style={{marginBottom: "20px"}}>
+                    <Col>
+                        <h4>Transit</h4>
+                        <ApartmentTransitInfo id={this.props.match.params.id} />
+                    </Col>
+                </Row>
                 <Row>
                     <Col>
-                        <Table striped>
+                        <h4>Properties</h4>
+                        <Table striped bordered>
                             <tbody>
                                 {items}
                             </tbody>

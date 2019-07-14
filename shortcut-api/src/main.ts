@@ -29,6 +29,11 @@ router.get('/apartments/:id/prices', async (req, res) => {
     res.json(rows);
 });
 
+router.get('/apartments/:id/transit', async (req, res) => {
+    const row = await pg('apartment_transit').select('summaries', 'itineraries', 'updated').where({ apartment_id: req.params.id }).first();
+    res.json(row);
+});
+
 
 app.use('/api', router);
 
