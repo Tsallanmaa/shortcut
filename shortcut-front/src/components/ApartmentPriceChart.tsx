@@ -25,7 +25,7 @@ export class ApartmentPriceChart extends React.Component<ApartmentPriceChartProp
                 const transformed = res.map((orig) => {
                     return {
                         price_date: orig.price_date.substring(0, orig.price_date.indexOf("T")),
-                        price: orig.price / 1000 + "k"
+                        price: orig.price / 1000
                     }
                 });
                 this.setState({ data: transformed })

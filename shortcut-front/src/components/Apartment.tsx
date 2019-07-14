@@ -1,12 +1,13 @@
 import * as React from "react";
-import { Table, Alert, Container, Row, Col, CardBody, Card, CardText } from 'reactstrap';
+import { Table, Alert, Container, Row, Col, CardBody, Card, CardText, Button } from 'reactstrap';
 import { RouteComponentProps } from "react-router-dom";
 import { ApartmentPriceChart } from "./ApartmentPriceChart";
 
 export interface ApartmentState { 
     data: any,
     isLoading: boolean,
-    name: string
+    name: string,
+    searchResult: any
 }
 
 export interface ApartmentMatchParams {
@@ -24,6 +25,7 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
         this.state = {
             name: "",
             data: {},
+            searchResult: {},
             isLoading: true
         }
     }
@@ -32,7 +34,7 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
         fetch(`http://localhost:3001/api/apartments/${this.props.match.params.id}`)
             .then((response) => response.json())
             .then((res: any) => {
-                this.setState({ name: res.name, data: res.json, isLoading: false })
+                this.setState({ name: res.name, data: res.json, searchResult: res.search_result, isLoading: false })
             }); 
     }
 
@@ -93,6 +95,7 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
                         </Card>
                     </Col>
                     <Col xs="4">
+                        <a className="btn btn-primary" style={{width: "100%"}} href={this.state.searchResult.url} rel="noreferrer nofollow">See original ad</a>
                         <ApartmentPriceChart id={this.props.match.params.id} />
                     </Col> 
                 </Row>

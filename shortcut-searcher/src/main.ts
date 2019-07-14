@@ -1,6 +1,12 @@
-import axios from 'axios';
+import axios, { AxiosRequestConfig } from 'axios';
 import * as cards from './model/OtCard';
 import bull from 'bull';
+
+const LIMIT = 24;
+
+function prepareUrl(limit: number, offset: number) {
+  return `https://asunnot.oikotie.fi/api/cards?buildingType%5B%5D=4&buildingType%5B%5D=8&buildingType%5B%5D=32&buildingType%5B%5D=128&buildingType%5B%5D=64&cardType=100&constructionYear%5Bmin%5D=1980&habitationType%5B%5D=1&limit=${limit}&locations=%5B%5B65,6,%22Vantaa%22%5D%5D&offset=${offset}&price%5Bmax%5D=450000&price%5Bmin%5D=200000&roomCount%5B%5D=5&roomCount%5B%5D=6&roomCount%5B%5D=7&sortBy=published_sort_desc`;
+}
 
 let cuid: string, token: string, time: string;
 const config = {
@@ -9,8 +15,8 @@ const config = {
 
 const q = new bull('search results', 'redis://redis',
   { limiter: {
-    max: 10,
-    duration: 5000
+    max: 1,
+    duration: 1000
   }
 });
 
@@ -36,16 +42,24 @@ axios.get('https://asunnot.oikotie.fi/user/get?format=json&rand=1135', config)
         }
       };
 
-    axios.get('https://asunnot.oikotie.fi/api/cards?buildingType%5B%5D=4&buildingType%5B%5D=8&buildingType%5B%5D=32&buildingType%5B%5D=128&buildingType%5B%5D=64&cardType=100&constructionYear%5Bmin%5D=1980&habitationType%5B%5D=1&limit=24&locations=%5B%5B14800,5,%2201640,+Vantaa%22%5D%5D&offset=0&price%5Bmax%5D=450000&price%5Bmin%5D=200000&roomCount%5B%5D=5&roomCount%5B%5D=6&roomCount%5B%5D=7&sortBy=published_sort_desc', cardConfig) // tslint:disable-line
-    .then(({ data }) => {
-      extractListingCards(data);
-    });
+    getCards(0, cardConfig);
 });
 
+function getCards(offset: number, config: AxiosRequestConfig) {
+  axios.get(prepareUrl(LIMIT, offset), config)
+  .then(({ data }) => {
+    
+    // Handle additional pages of cards
+    if ((data.found - data.start) > LIMIT)
+    {
+      getCards(offset+LIMIT, config);
+    }
 
-function extractListingCards(json: cards.Root): Array<String> {
-  const addresses: Array<String> = [];
+    extractListingCards(data);
+  });
+}
 
+function extractListingCards(json: cards.Root): void {
   json.cards.forEach((card) => {
     q.add({
         title: `${card.buildingData.city} / ${card.buildingData.district} / ${card.buildingData.address}`,
@@ -56,6 +70,4 @@ function extractListingCards(json: cards.Root): Array<String> {
         console.log(`[JOB] Job created: ${job.id} for ${card.buildingData.address}`);
     });
   });
-
-  return addresses;
 }
