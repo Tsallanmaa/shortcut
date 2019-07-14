@@ -42,32 +42,42 @@ axios.get('https://asunnot.oikotie.fi/user/get?format=json&rand=1135', config)
         }
       };
 
-    getCards(0, cardConfig);
+    return getCards(0, cardConfig);
+}).then(() => {
+  console.log("[SEARCHER] Jobs created, exiting...");
+  process.exit();
 });
 
-function getCards(offset: number, config: AxiosRequestConfig) {
-  axios.get(prepareUrl(LIMIT, offset), config)
+function getCards(offset: number, config: AxiosRequestConfig): Promise<any> {
+  return axios.get(prepareUrl(LIMIT, offset), config)
   .then(({ data }) => {
     
     // Handle additional pages of cards
     if ((data.found - data.start) > LIMIT)
     {
-      getCards(offset+LIMIT, config);
+      return createJobsFromCards(data)
+      .then(() => {
+        return getCards(offset+LIMIT, config);
+      });
     }
 
-    extractListingCards(data);
+    return createJobsFromCards(data);
   });
 }
 
-function extractListingCards(json: cards.Root): void {
+function createJobsFromCards(json: cards.Root): Promise<any[]> {
+  let promises: Array<Promise<any>> = [];
+
   json.cards.forEach((card) => {
-    q.add({
+    promises.push(q.add({
         title: `${card.buildingData.city} / ${card.buildingData.district} / ${card.buildingData.address}`,
         url: card.url,
         id: card.id,
         json: card
     }).then((job) => {
-        console.log(`[JOB] Job created: ${job.id} for ${card.buildingData.address}`);
-    });
+        console.log(`[SEARCHER] Job created: ${job.id} for ${card.buildingData.address}`);
+    }));
   });
+
+  return Promise.all(promises);
 }
