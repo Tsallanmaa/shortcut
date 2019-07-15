@@ -3,12 +3,15 @@ import bull from 'bull';
 import cheerio from 'cheerio';
 import knex from 'knex';
 import { Auth } from './Auth';
+import { Config } from './Config';
 
-const config = {
+let config: Config = require('./processor.json');
+
+const authConfig = {
   headers: { 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36' }
 };
 
-const q = new bull('search results', 'redis://redis',
+const q = new bull(config.queue, 'redis://redis',
   {
     limiter: {
       max: 10,
@@ -23,18 +26,13 @@ var pg = knex({
 });
 
 let cardConfig: any;
-
-
 let authPromise: Promise<Auth> = authenticate();
+
 function authenticate(): Promise<Auth>
 {
-  return axios.get('https://asunnot.oikotie.fi/user/get?format=json&rand=1135', config)
+  return axios.get(config.authenticationUrl, authConfig)
   .then(({ data }) => {
     console.log('[AUTH] Authentication success!');
-    console.log(`[AUTH] CUID: ${data.user.cuid}`);
-    console.log(`[AUTH] Token: ${data.user.token}`);
-    console.log(`[AUTH] Time: ${data.user.time}`);
-
     return new Auth(data.user.cuid, Number(data.user.time), data.user.token);
   });
 }
@@ -42,7 +40,7 @@ function authenticate(): Promise<Auth>
 q.process(async (job: any, done: any) => {
 
   let auth = await authPromise;
-  if (new Date().getTime()/1000 - auth.time > 600) {
+  if (new Date().getTime()/1000 - auth.time > config.authExpiryInSeconds) {
     authPromise = authenticate();
     auth = await authPromise;
   }
@@ -52,7 +50,8 @@ q.process(async (job: any, done: any) => {
       'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36',
       'ota-cuid': auth.cuid,
       'ota-loaded': auth.time,
-      'ota-token': auth.token
+      'ota-token': auth.token,
+      'referer': config.referer
     }
   };
 

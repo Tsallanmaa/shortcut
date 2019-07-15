@@ -14,4 +14,5 @@ FROM mhart/alpine-node:slim-12
 WORKDIR /app
 COPY --from=0 /usr/src/processor/build .
 COPY --from=1 /app/node_modules ./node_modules
+COPY ./conf/processor.json .
 CMD ["node", "main.js"]
