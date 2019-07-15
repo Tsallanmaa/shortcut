@@ -3,8 +3,11 @@ import bull from 'bull';
 import knex from 'knex';
 import {Coordinates} from './Coordinates';
 import moment from 'moment';
+import { Config } from './Config';
 
-const q = new bull('transit search', 'redis://redis',
+let config: Config = require('./transit.json');
+
+const q = new bull(config.queue, 'redis://redis',
   {
     limiter: {
       max: 1,
@@ -18,8 +21,8 @@ var pg = knex({
   searchPath: ['public'],
 });
 
-const workCoordsPromise = getCoordinates("Hiomotie 3, Helsinki");
-const cityCoordsPromise = getCoordinates("Aleksanterinkatu 52, Helsinki");
+const workCoordsPromise = getCoordinates(config.workAddress);
+const cityCoordsPromise = getCoordinates(config.cityAddress);
 
 q.process(async (job: any, done: any) => {
   const card = job.data.json;
@@ -42,8 +45,8 @@ q.process(async (job: any, done: any) => {
     itineraries: []
   };
 
-  // Route to work on next monday morning, arriving at 9:00
-  const workPromise = getItineraries(aptCoords, workCoords, nextDay(1).set("hour", 9).set("minute", 0).set("second", 0))
+  // Route to work
+  const workPromise = getItineraries(aptCoords, workCoords, nextDay(config.workDay).set("hour", config.workHour).set("minute", 0).set("second", 0))
   .then((itineraries: Array<any>) => {
     result.itineraries.push({
       tag: "WORK",
@@ -59,8 +62,8 @@ q.process(async (job: any, done: any) => {
     return itineraries;
   });
 
-  // Route to city center on next saturday, arriving at 17:00
-  const cityPromise = getItineraries(aptCoords, cityCoords, nextDay(6).set("hour", 17).set("minute", 0).set("second", 0))
+  // Route to city center
+  const cityPromise = getItineraries(aptCoords, cityCoords, nextDay(config.cityDay).set("hour", config.cityHour).set("minute", 0).set("second", 0))
   .then((itineraries: Array<any>) => {
     result.itineraries.push({
       tag: "CITY",

@@ -1,0 +1,13 @@
+{
+    // When to refresh authentication
+    "authExpiryInSeconds": 600,
+    
+    // Url for authentication
+    "authenticationUrl": "https://apartments.site.com/auth",
+
+    // Referer to use for apartment info requests
+    "referer": "https://referer.example.com",
+
+    // Queue that contains jobs for processing
+    "queue": "search results"
+}

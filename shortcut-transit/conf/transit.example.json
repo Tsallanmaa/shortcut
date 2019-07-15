@@ -1,0 +1,22 @@
+{
+    // Queue that contains jobs for processing
+    "queue": "transit search",
+
+    // Address of the place that is used as work destination
+    "workAddress": "Arkadiankatu 1, Helsinki",
+
+    // Address of the place that is used as "city center" destination
+    "cityAddress": "Aleksanterinkatu 52, Helsinki",
+
+    // Day of the week that work itineraries are fetched for (1 = Monday, 7 = Sunday)
+    "workDay": 1,
+
+    // Time to when itinerary should get you to work, in hours (ie. 9 means 9:00)
+    "workHour": 9,
+
+    // Day of the week that city center itineraries are fetched for (1 = Monday, 7 = Sunday)
+    "cityDay": 6,
+
+    // Time to when itinerary should get you to city center, in hours (ie. 17 means 17:00)
+    "cityHour": 17
+}
