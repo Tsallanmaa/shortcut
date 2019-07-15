@@ -3,7 +3,7 @@ import { Alert, Col, Container, Row } from 'reactstrap';
 import { RouteComponentProps } from "react-router-dom";
 import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css'
-import './css/sorting.css';
+import './css/apartmenttable.css';
 
 export interface ApartmentsListState { 
     data: any[],
