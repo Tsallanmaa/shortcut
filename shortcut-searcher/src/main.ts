@@ -1,43 +1,37 @@
 import axios, { AxiosRequestConfig } from 'axios';
 import * as cards from './model/OtCard';
 import bull from 'bull';
+import { Config } from './Config';
 
-const LIMIT = 24;
+let config: Config = require('./searcher.json');
 
 function prepareUrl(limit: number, offset: number) {
-  return `https://asunnot.oikotie.fi/api/cards?buildingType%5B%5D=4&buildingType%5B%5D=8&buildingType%5B%5D=32&buildingType%5B%5D=128&buildingType%5B%5D=64&cardType=100&constructionYear%5Bmin%5D=1980&habitationType%5B%5D=1&limit=${limit}&locations=%5B%5B65,6,%22Vantaa%22%5D%5D&offset=${offset}&price%5Bmax%5D=450000&price%5Bmin%5D=200000&roomCount%5B%5D=5&roomCount%5B%5D=6&roomCount%5B%5D=7&sortBy=published_sort_desc`;
+  return config.searchUrlTemplate.replace('${limit}', limit.toString()).replace('${offset}', offset.toString());
 }
 
 let cuid: string, token: string, time: string;
-const config = {
+const authHeaders = {
     headers: {'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/74.0.3729.169 Safari/537.36'}
   };
 
-const searchQueue = new bull('search results', 'redis://redis',
-  { limiter: {
-    max: 1,
-    duration: 1000
-  }
+let queues = config.queues.map((queueName) => {
+  return new bull(queueName, 'redis://redis',
+    { 
+      limiter: 
+      {
+        max: 1,
+        duration: 1000 
+      }
+    });
 });
 
-const transitQueue = new bull('transit search', 'redis://redis',
-  { limiter: {
-    max: 1,
-    duration: 1000
-  }
-});
-
-axios.get('https://asunnot.oikotie.fi/user/get?format=json&rand=1135', config)
+axios.get(config.authenticationUrl, authHeaders)
 .then(({data}) => {
     console.log('[AUTH] Authentication success!');
 
     cuid = data.user.cuid;
     token = data.user.token;
     time = data.user.time;
-
-    console.log(`[AUTH] CUID: ${data.user.cuid}`);
-    console.log(`[AUTH] Token: ${data.user.token}`);
-    console.log(`[AUTH] Time: ${data.user.time}`);
 }).then(() => {
     const cardConfig = {
         headers: {
@@ -45,7 +39,7 @@ axios.get('https://asunnot.oikotie.fi/user/get?format=json&rand=1135', config)
             'ota-cuid': cuid,
             'ota-loaded': time,
             'ota-token': token,
-            'referer': 'https://asunnot.oikotie.fi/myytavat-asunnot'
+            'referer': config.referer
         }
       };
 
@@ -55,16 +49,16 @@ axios.get('https://asunnot.oikotie.fi/user/get?format=json&rand=1135', config)
   process.exit();
 });
 
-function getCards(offset: number, config: AxiosRequestConfig): Promise<any> {
-  return axios.get(prepareUrl(LIMIT, offset), config)
+function getCards(offset: number, requestConfig: AxiosRequestConfig): Promise<any> {
+  return axios.get(prepareUrl(config.limit, offset), requestConfig)
   .then(({ data }) => {
     
     // Handle additional pages of cards
-    if ((data.found - data.start) > LIMIT)
+    if ((data.found - data.start) > config.limit)
     {
       return createJobsFromCards(data)
       .then(() => {
-        return getCards(offset+LIMIT, config);
+        return getCards(offset+config.limit, requestConfig);
       });
     }
 
@@ -75,24 +69,17 @@ function getCards(offset: number, config: AxiosRequestConfig): Promise<any> {
 function createJobsFromCards(json: cards.Root): Promise<any[]> {
   let promises: Array<Promise<any>> = [];
 
-  json.cards.forEach((card) => {
-    promises.push(searchQueue.add({
-        title: `${card.buildingData.city} / ${card.buildingData.district} / ${card.buildingData.address}`,
-        url: card.url,
-        id: card.id,
-        json: card
-    }).then((job) => {
-        console.log(`[SEARCHER] Search result processor job created: ${job.id} for ${card.buildingData.address}`);
-    }));
-
-    promises.push(transitQueue.add({
-      id: card.id,
-      title: `${card.buildingData.city} / ${card.buildingData.district} / ${card.buildingData.address}`,
-      json: card
-    }).then((job) => {
-        console.log(`[SEARCHER] Transit processor job created: ${job.id} for ${card.buildingData.address}`);
-    }));
-
+  queues.forEach((queue) => {
+    json.cards.forEach((card) => {
+      promises.push(queue.add({
+          title: `${card.buildingData.city} / ${card.buildingData.district} / ${card.buildingData.address}`,
+          url: card.url,
+          id: card.id,
+          json: card
+      }).then((job) => {
+          console.log(`[SEARCHER] ${queue.name} job created: ${job.id} for ${card.buildingData.address}`);
+      }));
+    })
   });
 
   return Promise.all(promises);

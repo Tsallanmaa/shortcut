@@ -1,0 +1,16 @@
+{
+    // Paging limit
+    "limit": 24,
+    
+    // Url for authentication
+    "authenticationUrl": "https://apartments.site.com/auth",
+
+    // Referer to use for card requests
+    "referer": "https://referer.example.com",
+
+    // Queues to push resulting jobs to
+    "queues": ["search results", "transit search"],
+    
+    // Template for the search we are going to execute. Parameters ${limit} and ${offset} are replaced to facilitate paging
+    "searchUrlTemplate": "https://apartments.site.com/api/apartments?param=foo&limit=${limit}&offset=${offset}&param2=baz"
+}
