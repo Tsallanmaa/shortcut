@@ -20,7 +20,7 @@ export class ApartmentTransitInfo extends React.Component<ApartmentTransitInfoPr
     }
 
     componentDidMount() {
-        fetch(`http://localhost:3001/api/apartments/${this.props.id}/transit`)
+        fetch(`${__API__}/api/apartments/${this.props.id}/transit`)
             .then((response) => response.json())
             .then((res: any[]) => {
                 this.setState({ data: res })

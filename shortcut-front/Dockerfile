@@ -1,5 +1,9 @@
 # Dockerfile
+ARG API_URL
+
 FROM mhart/alpine-node:12
+ARG API_URL
+ENV API_URL=$API_URL
 WORKDIR /app
 COPY . .
 RUN yarn install

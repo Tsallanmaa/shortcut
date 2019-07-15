@@ -26,7 +26,7 @@ export class ApartmentsList extends React.Component<ApartmentsListProps, Apartme
     }
 
     componentDidMount() {
-        fetch('http://localhost:3001/api/apartments')
+        fetch(`${__API__}/api/apartments`)
             .then((response) => response.json())
             .then((res: any[]) => {
                 const mapped = res.map((data) => {

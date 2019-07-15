@@ -19,7 +19,7 @@ export class ApartmentPriceChart extends React.Component<ApartmentPriceChartProp
     }
 
     componentDidMount() {
-        fetch(`http://localhost:3001/api/apartments/${this.props.id}/prices`)
+        fetch(`${__API__}/api/apartments/${this.props.id}/prices`)
             .then((response) => response.json())
             .then((res: Array<any>) => {
                 const transformed = res.map((orig) => {

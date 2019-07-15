@@ -32,7 +32,7 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
     }
 
     componentDidMount() {
-        fetch(`http://localhost:3001/api/apartments/${this.props.match.params.id}`)
+        fetch(`${__API__}/api/apartments/${this.props.match.params.id}`)
             .then((response) => response.json())
             .then((res: any) => {
                 this.setState({ name: res.name, data: res.json, searchResult: res.search_result, isLoading: false })

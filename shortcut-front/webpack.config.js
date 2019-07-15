@@ -1,10 +1,11 @@
+var webpack = require('webpack');
+
 module.exports = {
     mode: "production",
     devtool: "source-map",
     resolve: {
         extensions: [".ts", ".tsx", ".js", ".css"]
     },
-
     module: {
         rules: [
             {
@@ -27,6 +28,11 @@ module.exports = {
             }
         ]
     },
+    plugins: [
+        new webpack.DefinePlugin({
+            '__API__': JSON.stringify(process.env.API_URL)
+          })
+    ],
     externals: {
         "react": "React",
         "react-dom": "ReactDOM",

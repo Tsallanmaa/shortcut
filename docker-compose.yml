@@ -47,7 +47,10 @@ services:
       - DATABASE_URL=postgres://postgres@db:5432/shortcut
 
   front:
-    build: ./shortcut-front
+    build: 
+      context: ./shortcut-front
+      args:
+        - API_URL=http://localhost:3001
     container_name: front
     ports:
       - "8080:80"
