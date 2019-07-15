@@ -1,0 +1,15 @@
+.react-bootstrap-table th>.react-bootstrap-table-sort-order.dropup>.caret:after {
+    content: '\2191';
+}
+
+.react-bootstrap-table th>.react-bootstrap-table-sort-order>.caret:after {
+    content: '\2193';
+}
+
+.react-bootstrap-table th .order>.dropdown>.caret:after {
+    content: '\2193';
+}
+
+.react-bootstrap-table th .order>.dropup>.caret:after {
+    content: '\2191';
+}

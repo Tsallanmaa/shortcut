@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Table, Alert, Container, Row, Col, CardBody, Card, CardText, Button } from 'reactstrap';
+import { Table, Alert, Container, Row, Col, CardBody, Card, CardText } from 'reactstrap';
 import { RouteComponentProps } from "react-router-dom";
 import { ApartmentPriceChart } from "./ApartmentPriceChart";
 import { ApartmentTransitInfo } from "./ApartmentTransitInfo";
@@ -65,7 +65,7 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
                     items.push(
                         <tr key={`link${count}`}>
                             <td></td>
-                            <td><a href={link.target}>{link.title}</a></td>
+                            <td><a href={link.target} rel="noreferrer nofollow">{link.title}</a></td>
                         </tr>
                         );
                     count++;
