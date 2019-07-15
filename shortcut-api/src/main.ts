@@ -1,8 +1,9 @@
 import knex from 'knex';
 import express from 'express';
 import cors from 'cors';
+import { Config } from './Config';
 
-const port = 3001;
+const config: Config = require('./api.json');
 
 var pg = knex({
     client: 'pg',
@@ -37,4 +38,4 @@ router.get('/apartments/:id/transit', async (req, res) => {
 
 app.use('/api', router);
 
-app.listen(port, () => console.log(`Shortcut API listening on ${port}`));
+app.listen(config.port, () => console.log(`Shortcut API listening on ${config.port}`));

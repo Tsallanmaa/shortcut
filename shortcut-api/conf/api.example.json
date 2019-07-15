@@ -1,0 +1,4 @@
+{
+    // Which port to bind to
+    "port": 3001
+}
