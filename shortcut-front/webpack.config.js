@@ -1,4 +1,5 @@
 var webpack = require('webpack');
+var config = require('./conf/front.json');
 
 module.exports = {
     mode: "production",
@@ -30,7 +31,7 @@ module.exports = {
     },
     plugins: [
         new webpack.DefinePlugin({
-            '__API__': JSON.stringify(process.env.API_URL)
+            '__API__': JSON.stringify(config.apiUrl)
           })
     ],
     externals: {

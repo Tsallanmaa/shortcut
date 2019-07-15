@@ -1,0 +1,4 @@
+{
+    // URL for the shortcut API without the trailing slash, but with protocol
+    "apiUrl": "http://my-api"
+}

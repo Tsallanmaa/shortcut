@@ -58,8 +58,6 @@ services:
     build:
       context: ./shortcut-front
       dockerfile: Dockerfile.arm
-      args:
-        - API_URL=http://kansas:3001
     container_name: front
     ports:
       - "8080:80"
