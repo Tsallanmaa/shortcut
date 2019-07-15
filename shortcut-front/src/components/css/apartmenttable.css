@@ -1,6 +1,6 @@
-@media only screen and (min-device-width: 768px) and (max-device-width: 1024px) and (-webkit-min-device-pixel-ratio: 2)
-.container {
-    max-width: 1010px;
+.list-container {
+    max-width: 95%;
+    width: 95%;
 }
 
 .react-bootstrap-table th>.react-bootstrap-table-sort-order.dropup>.caret:after {

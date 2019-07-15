@@ -16,7 +16,9 @@ app.use(cors());
 const router = express.Router();
 
 router.get('/apartments', async (req, res) => {
-    const rows = await pg('apartments').select(pg.raw("id, name, last_seen_at, json, search_result"));
+    const rows = await pg('apartments')
+        .select(pg.raw("apartments.id, apartments.name, apartments.last_seen_at, apartments.json, apartments.search_result, apartment_transit.summaries as transit_summaries"))
+        .leftOuterJoin('apartment_transit', {"apartments.id": "apartment_transit.apartment_id"});
     res.json(rows);
 });
 

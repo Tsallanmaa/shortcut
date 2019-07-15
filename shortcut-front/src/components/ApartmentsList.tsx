@@ -4,6 +4,9 @@ import { RouteComponentProps } from "react-router-dom";
 import BootstrapTable from 'react-bootstrap-table-next';
 import 'react-bootstrap-table-next/dist/react-bootstrap-table2.min.css'
 import './css/apartmenttable.css';
+import { BuildingType } from "../model/BuildingType";
+import { BuildingState } from "../model/BuildingState";
+
 
 export interface ApartmentsListState { 
     data: any[],
@@ -44,6 +47,10 @@ export class ApartmentsList extends React.Component<ApartmentsListProps, Apartme
                     apt.address = data.search_result.buildingData.address;
                     apt.size = data.search_result.size;
                     apt.year = data.search_result.buildingData.year;
+                    apt.type = BuildingType.fromString(data.json["Rakennuksen tyyppi"] ? data.json["Rakennuksen tyyppi"] : "");
+                    apt.state = BuildingType.fromString(data.json["Kunto"] ? data.json["Kunto"] : "");
+
+                    apt.score = scoreApartment(apt, data.transit_summaries);
 
                     return apt;
                 });
@@ -57,10 +64,7 @@ export class ApartmentsList extends React.Component<ApartmentsListProps, Apartme
       }
 
     private columns: any[] = [
-        {
-            dataField: 'id',
-            text: '#'
-          }, {
+          {
             dataField: 'address',
             text: 'Address',
             sort: true
@@ -73,10 +77,6 @@ export class ApartmentsList extends React.Component<ApartmentsListProps, Apartme
             text: 'City',
             sort: true
           }, {
-            dataField: 'lastSeen',
-            text: 'Last seen',
-            sort: true
-          }, {
             dataField: 'configuration',
             text: 'Configuration'
           }, {
@@ -86,12 +86,16 @@ export class ApartmentsList extends React.Component<ApartmentsListProps, Apartme
           }, {
             dataField: 'size',
             text: 'Size',
-            sort: true,
-            formatter: (cell: any, row: any) => `${row.size} m2`
+            sort: true
           }, {
             dataField: 'totalPrice',
-            text: 'Total price',
+            text: 'Price',
             sort: true
+          }, {
+            dataField: 'score',
+            text: 'Score',
+            sort: true,
+            formatter: (cell: any, row: any) => `${row.score.toFixed(0)}` 
           }
     ];
 
@@ -105,15 +109,72 @@ export class ApartmentsList extends React.Component<ApartmentsListProps, Apartme
         }
 
         return (
-            <Container>
+            <Container className="list-container">
                 <Row>
                     <Col>   
                         <BootstrapTable striped bordered hover bootsrap4 keyField='id' data={this.state.data} columns={this.columns}
-                        defaultSorted={[{dataField: 'address', order: 'asc'}]}
+                        defaultSorted={[{dataField: 'score', order: 'desc'}]}
                         rowEvents={{onClick: this.handleClick.bind(this)}} />   
                     </Col>
                 </Row>
             </Container>
         );
     }
+}
+
+function scoreApartment(apt: any, transitSummaries: any[]): number
+{
+    const priceScore = (((400000-apt.totalPrice.replace(/[^0-9.,]/g, ""))/10000)*4); // [-5, 10] ==> [-20, 40]
+    const yearScore = (apt.year - 2000); // [-20, 20]
+    const sizeScore = ((apt.size > 160 ? 160 : apt.size) - 120)/3; // [-6.66, 12]
+    let typeScore: number;
+    switch (apt.type) {
+        case BuildingType.Independent:
+          typeScore = 10;
+          break;
+        case BuildingType.Detached:
+          typeScore = 0;
+          break;
+        case BuildingType.Dual:
+          typeScore = -10;
+          break;
+        default:
+          typeScore = 0;
+          break;
+    }
+
+    let stateScore: number;
+    switch (apt.state) {
+        case BuildingState.New:
+          stateScore = 10;
+          break;
+        case BuildingState.Good:
+          stateScore = 15;
+          break;
+        case BuildingState.Satisfactory:
+          stateScore = 0;
+          break;
+        case BuildingState.Tolerable:
+          stateScore = -20;
+          break;
+        case BuildingState.Bad:
+          stateScore = -40;
+          break;
+        default:
+          stateScore = 0;
+          break;
+    }
+    
+    if (transitSummaries)
+    {
+      const workSummary = transitSummaries.filter((summary) => summary.tag === "WORK").map((summary) => summary.summary)[0];
+      const workScore = ((50 - (workSummary.averageDuration/60))*2 - (workSummary.averageTransitLegCount-1)*5); // [-40, 40]
+
+      const citySummary = transitSummaries.filter((summary) => summary.tag === "CITY").map((summary) => summary.summary)[0];
+      const cityScore = ((50 - (citySummary.averageDuration/60)) - (citySummary.averageTransitLegCount-1)*5); // [-25, 20]
+      
+      return priceScore + stateScore + typeScore + yearScore + sizeScore + workScore + cityScore;
+    }
+
+    return priceScore + stateScore + typeScore + yearScore + sizeScore - 65;
 }
