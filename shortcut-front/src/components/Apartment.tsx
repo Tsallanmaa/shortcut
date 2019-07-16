@@ -3,12 +3,16 @@ import { Table, Alert, Container, Row, Col, CardBody, Card, CardText } from 'rea
 import { RouteComponentProps } from "react-router-dom";
 import { ApartmentPriceChart } from "./ApartmentPriceChart";
 import { ApartmentTransitInfo } from "./ApartmentTransitInfo";
+import { Apartment as ApartmentModel } from '../model/Apartment'
+import { ApartmentScore } from "../score/ApartmentScore";
+import { ApartmentScoring } from "./ApartmentScoring";
 
 export interface ApartmentState { 
     data: any,
     isLoading: boolean,
     name: string,
-    searchResult: any
+    searchResult: any,
+    apt: ApartmentModel|undefined
 }
 
 export interface ApartmentMatchParams {
@@ -27,7 +31,8 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
             name: "",
             data: {},
             searchResult: {},
-            isLoading: true
+            isLoading: true,
+            apt: undefined
         }
     }
 
@@ -35,7 +40,8 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
         fetch(`${__API__}/api/apartments/${this.props.match.params.id}`)
             .then((response) => response.json())
             .then((res: any) => {
-                this.setState({ name: res.name, data: res.json, searchResult: res.search_result, isLoading: false })
+                const apt = new ApartmentModel(res.id, res.name, res.last_seen_at, res.search_result, res.json, res.transit_summaries);
+                this.setState({ name: res.name, data: res.json, searchResult: res.search_result, apt: apt, isLoading: false })
             }); 
     }
 
@@ -104,6 +110,12 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
                     <Col>
                         <h4>Transit</h4>
                         <ApartmentTransitInfo id={this.props.match.params.id} />
+                    </Col>
+                </Row>
+                <Row style={{marginBottom: "20px"}}>
+                    <Col>
+                        <h4>Scoring</h4>
+                        <ApartmentScoring score={this.state.apt ? this.state.apt.score : undefined} />
                     </Col>
                 </Row>
                 <Row>

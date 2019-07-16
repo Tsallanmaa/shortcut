@@ -23,7 +23,9 @@ router.get('/apartments', async (req, res) => {
 });
 
 router.get('/apartments/:id', async (req, res) => {
-    const apt = await pg('apartments').select(pg.raw("id, name, last_seen_at, json, search_result")).where({id: req.params.id}).first();
+    const apt = await pg('apartments').select(pg.raw("apartments.id, apartments.name, apartments.last_seen_at, apartments.json, apartments.search_result, apartment_transit.summaries as transit_summaries"))
+    .leftOuterJoin('apartment_transit', {"apartments.id": "apartment_transit.apartment_id"})
+    .where({id: req.params.id}).first();
     res.json(apt);
 });
 
