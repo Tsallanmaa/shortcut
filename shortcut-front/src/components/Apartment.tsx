@@ -56,13 +56,13 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
 
         let items: Array<any> = [];
         Object.keys(this.state.data).forEach((key) => {
-            if (key === "description") {
+            if (key === "description" || key === "id") {
                 return;
             }
             if (key === "links") {
                 items.push(
                     <tr key={key}>
-                        <td><b>{ key }</b></td>
+                        <td><b>Linkit</b></td>
                         <td></td>
                     </tr>
                     );
@@ -102,6 +102,13 @@ export class Apartment extends React.Component<ApartmentProps, ApartmentState> {
                         </Card>
                     </Col>
                     <Col xs="4">
+                        <Card style={{marginBottom: "20px"}}>
+                            <CardBody>
+                                <CardText><h4>{this.state.apt ? `${this.state.apt.totalPrice.toFixed()} €` : ""}</h4></CardText>
+                                <CardText>{this.state.apt ? this.state.apt.year : ""} / {this.state.apt ? `${this.state.apt.size} m2` : ""}</CardText>
+                                <CardText>{this.state.apt ? this.state.apt.configuration : ""}</CardText>
+                            </CardBody>       
+                        </Card>
                         <a className="btn btn-primary" style={{width: "100%"}} href={this.state.searchResult.url} rel="noreferrer nofollow">See original ad</a>
                         <ApartmentPriceChart id={this.props.match.params.id} />
                     </Col> 
