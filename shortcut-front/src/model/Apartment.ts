@@ -36,7 +36,7 @@ export class Apartment
         this.lastSeen = lastSeenAt.substring(0, lastSeenAt.indexOf("T"));
         this.totalPrice = Number((json["Velaton hinta"] ? json["Velaton hinta"] : (
             json["Myyntihinta"] ? json["Myyntihinta"] : ""))
-            .replace(/[^0-9.,]/g, ""));
+            .replace(/[^0-9.,]/g, "").replace(",", "."));
         this.configuration = json["Huoneiston kokoonpano"] ? json["Huoneiston kokoonpano"].replace(/\+/g, ' + ').replace(/,([^\s])/g, ', $1') : "";
         this.city = searchResult.buildingData.city;
         this.district = searchResult.buildingData.district;
